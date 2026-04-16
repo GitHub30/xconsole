@@ -96,7 +96,7 @@ export function FtpPage() {
               <Fragment key={a.ftp_account}>
                 <TableRow>
                   <TableCell><Checkbox checked={selected.has(a.ftp_account)} onCheckedChange={() => { const next = new Set(selected); next.has(a.ftp_account) ? next.delete(a.ftp_account) : next.add(a.ftp_account); setSelected(next); }} /></TableCell>
-                  <TableCell className="font-medium">{a.ftp_account}</TableCell>
+                  <TableCell className="font-medium"><a href={`https://github30.github.io/web-ftp/?username=${encodeURIComponent(a.ftp_account)}&password=${encodeURIComponent(a.memo)}&port=10021`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{a.ftp_account}</a></TableCell>
                   <TableCell className="text-sm">{a.directory}</TableCell>
                   <TableCell>{a.quota_mb}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{a.memo}</TableCell>
@@ -128,6 +128,7 @@ export function FtpPage() {
           </TableBody>
         </Table>
       </div>
+      <p className="text-sm text-muted-foreground">パスワードがメモと同じ場合のみ、FTPアカウントをクリックするとファイルマネージャーにログインできます</p>
     </div>
   );
 }
