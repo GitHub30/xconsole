@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Globe, Earth, Database, Mail, HardDrive, Shield, Clock, FileText, FolderTree, Menu, LogOut, MailIcon, Terminal as TerminalIcon, Server } from "lucide-react";
@@ -98,7 +98,18 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const [sshOpen, setSshOpen] = useState(false);
   const [ftpPassword, setFtpPassword] = useState("");
   const [sshKey, setSshKey] = useState("");
+  const [sshDragging, setSshDragging] = useState(false);
+  const sshFileInputRef = useRef<HTMLInputElement>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  const readSshFile = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result;
+      if (typeof text === "string") setSshKey(text);
+    };
+    reader.readAsText(file);
+  }, []);
 
   useEffect(() => {
     const savedFtp = localStorage.getItem("ftp_password");
@@ -246,7 +257,18 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
             </p>
             <div>
               <Label>{t("header.sshPrivateKey")}</Label>
-              <Textarea rows={6} value={sshKey} onChange={(e) => setSshKey(e.target.value)} placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" />
+              <div
+                className={`relative mt-1 rounded-md border-2 border-dashed p-2 transition-colors ${sshDragging ? "border-primary bg-primary/10" : "border-muted-foreground/25"}`}
+                onDragOver={(e) => { e.preventDefault(); setSshDragging(true); }}
+                onDragLeave={() => setSshDragging(false)}
+                onDrop={(e) => { e.preventDefault(); setSshDragging(false); const file = e.dataTransfer.files[0]; if (file) readSshFile(file); }}
+              >
+                <Textarea className="max-h-[10rem] break-all border-0 shadow-none focus-visible:ring-0" value={sshKey} onChange={(e) => setSshKey(e.target.value)} placeholder="-----BEGIN OPENSSH PRIVATE KEY-----" />
+                <input ref={sshFileInputRef} type="file" className="hidden" accept=".pem,.key,.pub,*" onChange={(e) => { const file = e.target.files?.[0]; if (file) readSshFile(file); }} />
+                <button type="button" className="mt-1 w-full text-center text-xs text-muted-foreground hover:text-primary cursor-pointer" onClick={() => sshFileInputRef.current?.click()}>
+                  {t("header.sshDropOrSelect")}
+                </button>
+              </div>
             </div>
             <Button onClick={handleSshConnect} className="w-full">{t("common.connect")}</Button>
           </div>
