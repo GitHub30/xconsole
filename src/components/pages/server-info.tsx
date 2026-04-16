@@ -5,9 +5,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Server, Cpu, HardDrive, Globe, Database, Mail, FolderTree, Users } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Server, Cpu, HardDrive, Globe, Database, Mail, FolderTree, Users, Copy, Check } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
+
+function CopyableValue({ value, children, className }: { value: string; children: React.ReactNode; className?: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button type="button" onClick={handleCopy} className={`inline-flex items-center gap-1 cursor-pointer rounded px-1 -mx-1 hover:bg-muted transition-colors ${className ?? ""}`}>
+          {children}
+          {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100" />}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent>{copied ? "コピーしました" : "コピー"}</TooltipContent>
+    </Tooltip>
+  );
+}
 
 type ServerInfo = {
   server_id: string;
@@ -135,40 +156,43 @@ export function ServerInfoPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            <TooltipProvider>
             <dl className="space-y-2 text-sm">
-              <div className="flex justify-between">
+              <div className="flex justify-between group">
                 <dt className="text-muted-foreground">{t("serverInfo.serverId")}</dt>
-                <dd className="font-mono">{info.server_id}</dd>
+                <dd className="font-mono"><CopyableValue value={info.server_id}>{info.server_id}</CopyableValue></dd>
               </div>
               <Separator />
-              <div className="flex justify-between">
+              <div className="flex justify-between group">
                 <dt className="text-muted-foreground">{t("serverInfo.hostname")}</dt>
-                <dd className="font-mono">{info.hostname}</dd>
+                <dd className="font-mono"><CopyableValue value={info.hostname}>{info.hostname}</CopyableValue></dd>
               </div>
               <Separator />
-              <div className="flex justify-between">
+              <div className="flex justify-between group">
                 <dt className="text-muted-foreground">{t("serverInfo.ipAddress")}</dt>
-                <dd className="font-mono">{info.ip_address}</dd>
+                <dd className="font-mono"><CopyableValue value={info.ip_address}>{info.ip_address}</CopyableValue></dd>
               </div>
               <Separator />
-              <div className="flex justify-between">
+              <div className="flex justify-between group">
                 <dt className="text-muted-foreground">OS</dt>
-                <dd>{info.os}</dd>
+                <dd><CopyableValue value={info.os}>{info.os}</CopyableValue></dd>
               </div>
-              {info.cpu && (<><Separator /><div className="flex justify-between">
+              {info.cpu && (<><Separator /><div className="flex justify-between group">
                 <dt className="text-muted-foreground">CPU</dt>
-                <dd>{info.cpu}</dd>
+                <dd><CopyableValue value={info.cpu}>{info.cpu}</CopyableValue></dd>
               </div></>)}
-              {info.memory && (<><Separator /><div className="flex justify-between">
+              {info.memory && (<><Separator /><div className="flex justify-between group">
                 <dt className="text-muted-foreground">{t("serverInfo.memory")}</dt>
-                <dd>{info.memory}</dd>
+                <dd><CopyableValue value={info.memory}>{info.memory}</CopyableValue></dd>
               </div></>)}
               <Separator />
-              <div className="flex justify-between">
+              <div className="flex justify-between group">
                 <dt className="text-muted-foreground">Apache</dt>
-                <dd>{info.apache_version}</dd>
+                <dd><CopyableValue value={info.apache_version}>{info.apache_version}</CopyableValue></dd>
               </div>
             </dl>
+            <p className="text-xs text-muted-foreground mt-4 text-center">クリックするとコピー出来ます</p>
+            </TooltipProvider>
           </CardContent>
         </Card>
       </div>
@@ -205,9 +229,11 @@ export function ServerInfoPage() {
           <CardTitle className="text-sm font-medium">{t("serverInfo.nameServers")}</CardTitle>
         </CardHeader>
         <CardContent>
+          <TooltipProvider>
           <div className="flex flex-wrap gap-2">
-            {info.name_servers.map((ns) => <Badge key={ns} variant="outline" className="font-mono">{ns}</Badge>)}
+            {info.name_servers.map((ns) => <CopyableValue key={ns} value={ns}><Badge variant="outline" className="font-mono">{ns}</Badge></CopyableValue>)}
           </div>
+          </TooltipProvider>
         </CardContent>
       </Card>
 
@@ -216,7 +242,11 @@ export function ServerInfoPage() {
           <CardTitle className="text-sm font-medium">{t("serverInfo.domainValidationToken")}</CardTitle>
         </CardHeader>
         <CardContent>
-          <code className="text-sm bg-muted px-2 py-1 rounded break-all">{info.domain_validation_token}</code>
+          <TooltipProvider>
+          <CopyableValue value={info.domain_validation_token}>
+            <code className="text-sm bg-muted px-2 py-1 rounded break-all">{info.domain_validation_token}</code>
+          </CopyableValue>
+          </TooltipProvider>
         </CardContent>
       </Card>
     </div>
