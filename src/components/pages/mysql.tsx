@@ -22,6 +22,7 @@ export function MysqlPage() {
   const [databases, setDatabases] = useState<Database[]>([]);
   const [users, setUsers] = useState<DbUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hostname, setHostname] = useState("");
 
   // DB state
   const [selectedDbs, setSelectedDbs] = useState<Set<string>>(new Set());
@@ -56,9 +57,10 @@ export function MysqlPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dbRes, userRes] = await Promise.all([api.getDatabases(), api.getDbUsers()]);
+      const [dbRes, userRes, infoRes] = await Promise.all([api.getDatabases(), api.getDbUsers(), api.getServerInfo()]);
       setDatabases(dbRes.databases);
       setUsers(userRes.users);
+      setHostname(infoRes.hostname);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, []);
@@ -207,7 +209,7 @@ export function MysqlPage() {
                       <TableCell><Checkbox checked={selectedDbs.has(d.db_name)} onCheckedChange={() => { const next = new Set(selectedDbs); next.has(d.db_name) ? next.delete(d.db_name) : next.add(d.db_name); setSelectedDbs(next); }} /></TableCell>
                       <TableCell className="font-medium">{d.db_name}</TableCell>
                       <TableCell>{d.size_mb}</TableCell>
-                      <TableCell>{d.granted_users.map(u => <Badge key={u} variant="secondary" className="mr-1">{u}</Badge>)}</TableCell>
+                      <TableCell>{d.granted_users.map(u => <a key={u} href={`https://${encodeURIComponent(u)}:${encodeURIComponent(u)}@phpmyadmin-${hostname}`} target="_blank" rel="noopener noreferrer"><Badge variant="secondary" className="mr-1 cursor-pointer hover:bg-primary hover:text-primary-foreground">{u}</Badge></a>)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{d.memo}</TableCell>
                       <TableCell>
                         <Button size="sm" variant="outline" onClick={() => openDbGrantDialog(d.db_name)}>{t("mysql.grants")}</Button>
@@ -237,6 +239,7 @@ export function MysqlPage() {
               </TableBody>
             </Table>
           </div>
+          <p className="text-sm text-muted-foreground">パスワードが権限ユーザー名と同じ場合のみ、権限ユーザーをクリックするとphpMyAdminにログインできます</p>
         </TabsContent>
 
         {/* Users Tab */}
