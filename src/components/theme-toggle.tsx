@@ -3,11 +3,12 @@
 import { useTheme } from "@/components/theme-provider";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export function ThemeToggle() {
+export function ThemeToggle({ tooltip }: { tooltip?: string }) {
   const { theme, setTheme } = useTheme();
 
-  return (
+  const button = (
     <Button
       variant="ghost"
       size="icon"
@@ -18,4 +19,15 @@ export function ThemeToggle() {
       <span className="sr-only">Toggle theme</span>
     </Button>
   );
+
+  if (tooltip) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipContent>{tooltip}</TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return button;
 }

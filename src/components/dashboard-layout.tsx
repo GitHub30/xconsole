@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n";
 import { api, getServername, getServernamePrefix } from "@/lib/api";
 
@@ -169,12 +170,18 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
           <div className="flex items-center gap-1">
             {/* Language Dropdown */}
+            <TooltipProvider>
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-xs">
-                  {langLabel(lang)}
-                </Button>
-              </DropdownMenuTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-xs">
+                      {langLabel(lang)}
+                    </Button>
+                  </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>{t("header.langSwitch")}</TooltipContent>
+              </Tooltip>
               <DropdownMenuContent align="end">
                 {languages.map((l) => (
                   <DropdownMenuItem key={l} onClick={() => setLang(l)}>
@@ -184,29 +191,50 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <ThemeToggle />
+            <ThemeToggle tooltip={t("header.themeToggle")} />
 
             {/* Mail icon */}
-            <Button variant="ghost" size="icon" asChild>
-              <Link href={`/mail${queryString}`}>
-                <MailIcon className="h-5 w-5" />
-              </Link>
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href={`/mail${queryString}`}>
+                    <MailIcon className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("header.mailTooltip")}</TooltipContent>
+            </Tooltip>
 
             {/* FTP */}
-            <Button variant="ghost" size="icon" onClick={() => setFtpOpen(true)}>
-              <HardDrive className="h-5 w-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setFtpOpen(true)}>
+                  <HardDrive className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("header.fileManager")}</TooltipContent>
+            </Tooltip>
 
             {/* SSH */}
-            <Button variant="ghost" size="icon" onClick={() => setSshOpen(true)}>
-              <TerminalIcon className="h-5 w-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={() => setSshOpen(true)}>
+                  <TerminalIcon className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("header.ssh")}</TooltipContent>
+            </Tooltip>
 
             {/* Logout */}
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="h-5 w-5" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t("header.logout")}</TooltipContent>
+            </Tooltip>
+            </TooltipProvider>
           </div>
         </header>
 
