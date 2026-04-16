@@ -9,12 +9,14 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
 type Domain = { domain: string; type: string; ssl: boolean; memo: string; is_awaiting: boolean };
 type AccessData = { domain: string; count: number; hourly: number[] };
+type PhpVersionData = { available_versions: Record<string, string>; domains: Record<string, string> };
 
 function Sparkline({ data }: { data: number[] }) {
   if (!data.length) return null;
@@ -42,6 +44,7 @@ export function DomainsPage() {
   const { t } = useI18n();
   const [domains, setDomains] = useState<Domain[]>([]);
   const [accessData, setAccessData] = useState<Record<string, AccessData>>({});
+  const [phpData, setPhpData] = useState<PhpVersionData>({ available_versions: {}, domains: {} });
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
@@ -72,6 +75,17 @@ export function DomainsPage() {
         })
       );
       setAccessData(accessMap);
+      // Fetch PHP version data
+      try {
+        const phpRes = await api.getPhpVersion();
+        const domainMap: Record<string, string> = {};
+        for (const d of phpRes.domains) {
+          domainMap[d.domain] = d.current_version;
+        }
+        setPhpData({ available_versions: phpRes.available_versions, domains: domainMap });
+      } catch {
+        // ignore
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -116,6 +130,18 @@ export function DomainsPage() {
     fetchData();
   };
 
+  const handlePhpVersionChange = async (domain: string, version: string) => {
+    try {
+      await api.updatePhpVersion(domain, { version });
+      setPhpData((prev) => ({
+        ...prev,
+        domains: { ...prev.domains, [domain]: version },
+      }));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const toggleSelect = (domain: string) => {
     const next = new Set(selected);
     if (next.has(domain)) next.delete(domain);
@@ -156,6 +182,7 @@ export function DomainsPage() {
               <TableHead>{t("domain.name")}</TableHead>
               <TableHead>{t("domain.type")}</TableHead>
               <TableHead>{t("domain.ssl")}</TableHead>
+              <TableHead>PHP</TableHead>
               <TableHead>{t("domain.access")}</TableHead>
               <TableHead></TableHead>
               <TableHead>{t("common.memo")}</TableHead>
@@ -169,6 +196,7 @@ export function DomainsPage() {
                 <TableCell>
                   <Input placeholder="example.com" value={newDomain} onChange={(e) => setNewDomain(e.target.value)} className="h-8" />
                 </TableCell>
+                <TableCell />
                 <TableCell />
                 <TableCell />
                 <TableCell />
@@ -199,6 +227,25 @@ export function DomainsPage() {
                   <TableCell>
                     {d.ssl ? <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">SSL</Badge> : <Badge variant="outline">-</Badge>}
                   </TableCell>
+                  <TableCell>
+                    {Object.keys(phpData.available_versions).length > 0 ? (
+                      <Select
+                        value={phpData.domains[d.domain] ?? ""}
+                        onValueChange={(v) => handlePhpVersionChange(d.domain, v)}
+                      >
+                        <SelectTrigger size="sm" className="h-7 text-xs min-w-[90px]">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(phpData.available_versions).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>{label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span className="text-muted-foreground text-xs">-</span>
+                    )}
+                  </TableCell>
                   <TableCell>{accessData[d.domain]?.count ?? "-"}</TableCell>
                   <TableCell>
                     <Sparkline data={accessData[d.domain]?.hourly ?? []} />
@@ -224,7 +271,7 @@ export function DomainsPage() {
                 </TableRow>
                 {expanded === d.domain && (
                   <TableRow key={`${d.domain}-edit`}>
-                    <TableCell colSpan={8} className="bg-muted/50">
+                    <TableCell colSpan={9} className="bg-muted/50">
                       <div className="p-4 space-y-3">
                         <div>
                           <label className="text-sm font-medium">{t("common.memo")}</label>
