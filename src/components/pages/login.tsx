@@ -27,7 +27,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4 relative">
+    <div className="flex items-start justify-center min-h-screen bg-background p-4 relative pt-[10vh]">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">{t("login.title")}</CardTitle>
