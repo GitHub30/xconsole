@@ -22,7 +22,8 @@ export function LoginPage() {
     if (!servername || !apiKey) return;
     const endpoint = useMock ? MOCK_ENDPOINT : PROD_ENDPOINT;
     const params = new URLSearchParams({ servername, api_key: apiKey, endpoint });
-    window.location.href = `/?${params.toString()}`;
+    const base = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
+    window.location.href = `${base}?${params.toString()}`;
   };
 
   return (

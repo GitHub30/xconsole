@@ -18,8 +18,11 @@ import { CronPage } from "@/components/pages/cron";
 import { SslPage } from "@/components/pages/ssl";
 import { ServerInfoPage } from "@/components/pages/server-info";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
 function getPageFromPath(pathname: string) {
-  const path = pathname === "/" ? "/" : pathname.replace(/\/$/, "");
+  const stripped = BASE_PATH && pathname.startsWith(BASE_PATH) ? pathname.slice(BASE_PATH.length) : pathname;
+  const path = stripped === "" || stripped === "/" ? "/" : stripped.replace(/\/$/, "");
   switch (path) {
     case "/login": return "login";
     case "/": return "domains";

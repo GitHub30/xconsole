@@ -124,7 +124,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   };
 
   const handleLogout = () => {
-    window.location.href = "/";
+    window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
   };
 
   const qs = searchParams.toString();
