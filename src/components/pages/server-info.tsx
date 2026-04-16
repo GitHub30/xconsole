@@ -20,9 +20,9 @@ function CopyableValue({ value, children, className }: { value: string; children
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <button type="button" onClick={handleCopy} className={`inline-flex items-center gap-1 cursor-pointer rounded px-1 -mx-1 hover:bg-muted transition-colors ${className ?? ""}`}>
+        <button type="button" onClick={handleCopy} className={`group/copy inline-flex items-center gap-1 cursor-pointer rounded px-1 -mx-1 hover:bg-muted transition-colors ${className ?? ""}`}>
           {children}
-          {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100" />}
+          {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover/copy:opacity-100" />}
         </button>
       </TooltipTrigger>
       <TooltipContent>{copied ? "コピーしました" : "コピー"}</TooltipContent>
