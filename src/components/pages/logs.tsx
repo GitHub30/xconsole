@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Download, Settings2 } from "lucide-react";
+import { Download, Settings2, Sparkles, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
+import Markdown from "react-markdown";
 
 type LogEntry = {
   time: string;
@@ -148,6 +150,9 @@ export function LogsPage() {
   const [selectedEntry, setSelectedEntry] = useState<LogEntry | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const [aiResult, setAiResult] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
 
   const toggleCol = (key: ColumnKey) => {
     setVisibleCols((prev) =>
@@ -212,6 +217,39 @@ export function LogsPage() {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h2 className="text-xl font-bold">{t("nav.logs")}</h2>
         <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={aiLoading || (!accessRaw && !errorRaw)}
+            onClick={async () => {
+              setAiLoading(true);
+              setAiResult("");
+              setAiDialogOpen(true);
+              try {
+                const contents = `ログを分析して\n${JSON.stringify({
+                  error_log: errorRaw.slice(0, 4000),
+                  access_log: accessRaw.slice(0, 4000),
+                })}`;
+                const res = await fetch("https://gemini.kr.deno.net", {
+                  method: "POST",
+                  body: JSON.stringify({
+                    model: "gemini-3.1-flash-lite-preview",
+                    contents,
+                  }),
+                });
+                const obj = await res.json();
+                const text = obj.candidates?.[0]?.content?.parts?.[0]?.text || "分析結果を取得できませんでした。";
+                setAiResult(text);
+              } catch (e) {
+                setAiResult("エラーが発生しました: " + (e instanceof Error ? e.message : String(e)));
+              } finally {
+                setAiLoading(false);
+              }
+            }}
+          >
+            {aiLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
+            Ask AI
+          </Button>
           <Select value={selectedDomain} onValueChange={setSelectedDomain}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder={t("logs.domain")} />
@@ -313,6 +351,27 @@ export function LogsPage() {
       </div>
 
       {/* Log detail tooltip */}
+      {/* AI Analysis Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5" /> AI ログ分析
+            </DialogTitle>
+          </DialogHeader>
+          {aiLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin mr-2" />
+              <span>分析中...</span>
+            </div>
+          ) : (
+            <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
+              <Markdown>{aiResult}</Markdown>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {selectedEntry && (
         <div
           ref={tooltipRef}
