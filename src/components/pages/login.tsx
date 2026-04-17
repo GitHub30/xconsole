@@ -42,6 +42,7 @@ export function LoginPage() {
               <Input
                 id="apiKey"
                 type="password"
+                placeholder="xs_..."
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 required
