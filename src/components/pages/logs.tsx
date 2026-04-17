@@ -226,7 +226,7 @@ export function LogsPage() {
               setAiResult("");
               setAiDialogOpen(true);
               try {
-                const contents = `ログを分析して\n${JSON.stringify({
+                const contents = `以下のログを分析してください。回答はMarkdown形式で出力してください。重要: **太字** や *斜体* などのMarkdown記法の前後には必ず半角スペースを入れてください（例: "主に **エラー** が" のように）。\n${JSON.stringify({
                   error_log: errorRaw.slice(0, 4000),
                   access_log: accessRaw.slice(0, 4000),
                 })}`;
