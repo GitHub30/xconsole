@@ -22,7 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useI18n } from "@/lib/i18n";
-import { api, getServername, getServernamePrefix } from "@/lib/api";
+import { api, getServername, getServernamePrefix, clearAuth } from "@/lib/api";
 
 const navItems = [
   { href: "/", labelKey: "nav.domains", icon: Globe },
@@ -136,6 +136,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   };
 
   const handleLogout = () => {
+    clearAuth();
     window.location.href = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
   };
 

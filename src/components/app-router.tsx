@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/lib/i18n";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { LoginPage } from "@/components/pages/login";
+import { isLoggedIn, hasUrlAuth, fetchMe, saveServername } from "@/lib/api";
 import { DomainsPage } from "@/components/pages/domains";
 import { SubdomainsPage } from "@/components/pages/subdomains";
 import { LogsPage } from "@/components/pages/logs";
@@ -58,12 +58,41 @@ function PageContent({ page }: { page: string }) {
 }
 
 export function AppRouter() {
-  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState("domains");
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const servername = searchParams.get("servername");
-  const apiKey = searchParams.get("api_key");
-  const isLoggedIn = !!(servername && apiKey);
+  useEffect(() => {
+    async function initAuth() {
+      if (!hasUrlAuth()) {
+        setLoggedIn(false);
+        setLoading(false);
+        return;
+      }
+      if (isLoggedIn()) {
+        setLoggedIn(true);
+        setLoading(false);
+        return;
+      }
+      // servername not in localStorage — fetch via /v1/me
+      const params = new URLSearchParams(window.location.search);
+      const apiKey = params.get("api_key")!;
+      const endpoint = params.get("endpoint") || "https://xapi.ix.workers.dev";
+      try {
+        const me = await fetchMe(apiKey, endpoint);
+        if (!me.servername) throw new Error("No servername");
+        saveServername(apiKey, me.servername);
+        setLoggedIn(true);
+      } catch {
+        // Failed — redirect to login
+        const base = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/login";
+        window.location.href = base;
+        return;
+      }
+      setLoading(false);
+    }
+    initAuth();
+  }, []);
 
   useEffect(() => {
     const updatePage = () => {
@@ -95,7 +124,7 @@ export function AppRouter() {
   return (
     <ThemeProvider>
       <I18nProvider>
-        {!isLoggedIn ? (
+        {loading ? null : !loggedIn ? (
           <LoginPage />
         ) : (
           <DashboardLayout>

@@ -1,18 +1,40 @@
 const MOCK_ENDPOINT = "https://xapi.ix.workers.dev";
 
-function getEndpoint(): string {
-  if (typeof window === "undefined") return MOCK_ENDPOINT;
+function getUrlParams(): { apiKey: string | null; endpoint: string | null } {
+  if (typeof window === "undefined") return { apiKey: null, endpoint: null };
   const params = new URLSearchParams(window.location.search);
-  return params.get("endpoint") || MOCK_ENDPOINT;
+  return { apiKey: params.get("api_key"), endpoint: params.get("endpoint") };
+}
+
+function getEndpoint(): string {
+  return getUrlParams().endpoint || MOCK_ENDPOINT;
+}
+
+function getApiKey(): string | null {
+  return getUrlParams().apiKey;
 }
 
 function getAuth(): { servername: string; apiKey: string } | null {
   if (typeof window === "undefined") return null;
-  const params = new URLSearchParams(window.location.search);
-  const servername = params.get("servername");
-  const apiKey = params.get("api_key");
-  if (!servername || !apiKey) return null;
+  const apiKey = getApiKey();
+  if (!apiKey) return null;
+  const servername = localStorage.getItem(apiKey);
+  if (!servername) return null;
   return { servername, apiKey };
+}
+
+export function hasUrlAuth(): boolean {
+  const { apiKey } = getUrlParams();
+  return !!apiKey;
+}
+
+export function saveServername(apiKey: string, servername: string): void {
+  localStorage.setItem(apiKey, servername);
+}
+
+export function clearAuth(): void {
+  const apiKey = getApiKey();
+  if (apiKey) localStorage.removeItem(apiKey);
 }
 
 export function isLoggedIn(): boolean {
@@ -26,6 +48,26 @@ export function getServername(): string {
 export function getServernamePrefix(): string {
   const sn = getServername();
   return sn.split(".")[0] || sn;
+}
+
+export async function fetchMe(apiKey: string, endpoint: string): Promise<{
+  service_type: string;
+  expires_at: string | null;
+  servername: string;
+  permission_type: string;
+}> {
+  const url = `${endpoint}/v1/me`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API Error ${res.status}: ${text}`);
+  }
+  return res.json();
 }
 
 async function request<T>(
