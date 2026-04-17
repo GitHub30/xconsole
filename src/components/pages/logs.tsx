@@ -293,7 +293,7 @@ export function LogsPage() {
             {entries.slice(0, 200).map((entry, i) => (
               <TableRow
                 key={i}
-                style={{ borderLeft: `2px solid ${getStatusColor(entry.status)}` }}
+                style={{ borderLeft: `4px solid ${getStatusColor(entry.status)}` }}
                 className="relative group cursor-pointer"
                 onMouseEnter={() => setHoveredEntry(entry)}
                 onMouseLeave={() => setHoveredEntry(null)}
