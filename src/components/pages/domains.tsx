@@ -149,6 +149,19 @@ export function DomainsPage() {
     setSelected(next);
   };
 
+  const handleToggleSsl = async (domain: string, currentSsl: boolean) => {
+    try {
+      if (currentSsl) {
+        await api.deleteSsl(domain);
+      } else {
+        await api.createSsl({ common_name: domain });
+      }
+      setDomains((prev) => prev.map((d) => d.domain === domain ? { ...d, ssl: !currentSsl } : d));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const toggleSelectAll = () => {
     if (selected.size === domains.length) setSelected(new Set());
     else setSelected(new Set(domains.map((d) => d.domain)));
@@ -225,7 +238,7 @@ export function DomainsPage() {
                   <TableCell className="font-medium">{d.domain}</TableCell>
                   <TableCell><Badge variant="secondary">{d.type}</Badge></TableCell>
                   <TableCell>
-                    {d.ssl ? <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">SSL</Badge> : <Badge variant="outline">-</Badge>}
+                    <Switch checked={d.ssl} onCheckedChange={() => handleToggleSsl(d.domain, d.ssl)} />
                   </TableCell>
                   <TableCell>
                     {Object.keys(phpData.available_versions).length > 0 ? (

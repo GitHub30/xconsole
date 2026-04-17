@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Plus, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
@@ -58,6 +59,19 @@ export function SubdomainsPage() {
   const handleUpdateMemo = async (sd: string) => {
     await api.updateSubdomain(sd, { memo: editMemo });
     setExpanded(null); fetchData();
+  };
+
+  const handleToggleSsl = async (subdomain: string, currentSsl: boolean) => {
+    try {
+      if (currentSsl) {
+        await api.deleteSsl(subdomain);
+      } else {
+        await api.createSsl({ common_name: subdomain });
+      }
+      setSubdomains((prev) => prev.map((s) => s.subdomain === subdomain ? { ...s, ssl: !currentSsl } : s));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const toggleSelect = (sd: string) => {
@@ -120,7 +134,7 @@ export function SubdomainsPage() {
                   <TableCell className="font-medium">{s.subdomain}</TableCell>
                   <TableCell>{s.domain}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{s.document_root}</TableCell>
-                  <TableCell>{s.ssl ? <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">SSL</Badge> : <Badge variant="outline">-</Badge>}</TableCell>
+                  <TableCell><Switch checked={s.ssl} onCheckedChange={() => handleToggleSsl(s.subdomain, s.ssl)} /></TableCell>
                   <TableCell className="text-sm text-muted-foreground truncate max-w-[150px]">{s.memo}</TableCell>
                   <TableCell>
                     <Button size="sm" variant="ghost" onClick={() => { expanded === s.subdomain ? setExpanded(null) : (setExpanded(s.subdomain), setEditMemo(s.memo)); }}>
