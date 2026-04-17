@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Download, Settings2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
@@ -24,6 +24,7 @@ type LogEntry = {
   bytes: string;
   referer: string;
   useragent: string;
+  raw: string;
 };
 
 type ColumnKey = "time" | "statusText" | "request" | "host" | "remoteHost" | "user" | "bytes" | "referer" | "useragent";
@@ -83,6 +84,7 @@ function parseAccessLog(log: string): LogEntry[] {
       bytes: g.bytes,
       referer: g.referer,
       useragent: g.useragent,
+      raw: match[0],
     });
   }
   return entries;
@@ -113,6 +115,7 @@ function parseErrorLog(log: string): LogEntry[] {
       bytes: "-",
       referer: "-",
       useragent: "-",
+      raw: match[0],
     });
   }
   return entries;
@@ -141,12 +144,26 @@ export function LogsPage() {
   const [chartData, setChartData] = useState<{ hour: string; count: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCols, setVisibleCols] = useState<ColumnKey[]>(DEFAULT_VISIBLE);
+  const [hoveredEntry, setHoveredEntry] = useState<LogEntry | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<LogEntry | null>(null);
+  const [tooltipPos, setTooltipPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   const toggleCol = (key: ColumnKey) => {
     setVisibleCols((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   };
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node)) {
+        setSelectedEntry(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   useEffect(() => {
     api.getDomains().then((res) => {
@@ -249,6 +266,14 @@ export function LogsPage() {
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
               <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2} dot={false} />
+              {(selectedEntry || hoveredEntry) && (
+                <ReferenceLine
+                  x={`${new Date((selectedEntry || hoveredEntry)!.timestamp).getHours()}:00`}
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  strokeDasharray="4 2"
+                />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -266,7 +291,18 @@ export function LogsPage() {
           </TableHeader>
           <TableBody>
             {entries.slice(0, 200).map((entry, i) => (
-              <TableRow key={i} style={{ borderLeft: `2px solid ${getStatusColor(entry.status)}` }}>
+              <TableRow
+                key={i}
+                style={{ borderLeft: `2px solid ${getStatusColor(entry.status)}` }}
+                className="relative group cursor-pointer"
+                onMouseEnter={() => setHoveredEntry(entry)}
+                onMouseLeave={() => setHoveredEntry(null)}
+                onClick={(e) => {
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                  setTooltipPos({ left: rect.left, top: rect.top - 4 });
+                  setSelectedEntry(selectedEntry === entry ? null : entry);
+                }}
+              >
                 {COLUMNS.filter((c) => visibleCols.includes(c.key)).map((col) => (
                   <TableCell key={col.key} className={`font-mono text-xs ${col.className}`}>{entry[col.key]}</TableCell>
                 ))}
@@ -275,6 +311,23 @@ export function LogsPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Log detail tooltip */}
+      {selectedEntry && (
+        <div
+          ref={tooltipRef}
+          className="fixed z-50 max-w-[80vw] px-3 py-2 text-xs font-mono bg-popover text-popover-foreground border rounded-md shadow-lg whitespace-pre"
+          style={{ left: tooltipPos.left, top: tooltipPos.top, transform: "translateY(-100%)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {COLUMNS.map((col) => (
+            <div key={col.key}>
+              <span className="text-muted-foreground">{t(col.i18nKey)}: </span>
+              <span>{selectedEntry[col.key]}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
