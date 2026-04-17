@@ -121,7 +121,7 @@ export const api = {
   deleteSubdomain: (subdomain: string, data?: { delete_files?: boolean }) => request<{ message: string }>(`/subdomain/${encodeURIComponent(subdomain)}`, { method: "DELETE", body: JSON.stringify(data ?? {}) }),
 
   // DNS
-  getDns: (domain?: string) => request<{ records: Array<{ id: number; domain: string; host: string; type: string; content: string; ttl: number; priority: number | null }> }>(`/dns${domain ? `?domain=${encodeURIComponent(domain)}` : ""}`),
+  getDns: (domain?: string) => request<{ records: Array<{ id: number; domain: string; host: string; type: string; content: string; ttl: number; priority: number }> }>(`/dns${domain ? `?domain=${encodeURIComponent(domain)}` : ""}`),
   createDns: (data: { domain: string; host: string; type: string; content: string; ttl?: number; priority?: number }) => request<{ id: number; message: string }>("/dns", { method: "POST", body: JSON.stringify(data) }),
   updateDns: (id: number, data: { domain?: string; host?: string; type?: string; content?: string; ttl?: number; priority?: number }) => request<{ message: string }>(`/dns/${id}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteDns: (id: number) => request<{ message: string }>(`/dns/${id}`, { method: "DELETE" }),
@@ -170,7 +170,7 @@ export const api = {
   deleteWordPress: (id: string, data?: { delete_db?: boolean; delete_db_user?: boolean; delete_cron?: boolean }) => request<{ message: string }>(`/wp/${encodeURIComponent(id)}`, { method: "DELETE", body: JSON.stringify(data ?? {}) }),
 
   // Cron
-  getCrons: () => request<{ crons: Array<{ id: string; minute: string; hour: string; day: string; month: string; weekday: string; command: string; comment: string; enabled: boolean }>; notification_email: string }>("/cron"),
+  getCrons: () => request<{ crons: Array<{ id: string; minute: string; hour: string; day: string; month: string; weekday: string; command: string; comment: string; enabled: boolean }>; notification_email: string | null }>("/cron"),
   createCron: (data: { minute: string; hour: string; day: string; month: string; weekday: string; command: string; comment?: string }) => request<{ id: string; message: string }>("/cron", { method: "POST", body: JSON.stringify(data) }),
   updateCron: (id: string, data: { minute?: string; hour?: string; day?: string; month?: string; weekday?: string; command?: string; comment?: string; enabled?: boolean }) => request<{ id: string; message: string }>(`/cron/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(data) }),
   deleteCron: (id: string) => request<{ message: string }>(`/cron/${encodeURIComponent(id)}`, { method: "DELETE" }),

@@ -10,7 +10,7 @@ import { Plus, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
-type DnsRecord = { id: number; domain: string; host: string; type: string; content: string; ttl: number; priority: number | null };
+type DnsRecord = { id: number; domain: string; host: string; type: string; content: string; ttl: number; priority: number };
 
 const DNS_TYPES = ["A", "AAAA", "CNAME", "MX", "TXT", "SRV", "CAA"];
 
