@@ -6,6 +6,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { LoginPage } from "@/components/pages/login";
 import { isLoggedIn, hasUrlAuth, fetchMe, saveServername } from "@/lib/api";
+import { Toaster } from "@/components/ui/sonner";
 import { DomainsPage } from "@/components/pages/domains";
 import { SubdomainsPage } from "@/components/pages/subdomains";
 import { LogsPage } from "@/components/pages/logs";
@@ -131,6 +132,7 @@ export function AppRouter() {
             <PageContent page={currentPage} />
           </DashboardLayout>
         )}
+        <Toaster />
       </I18nProvider>
     </ThemeProvider>
   );

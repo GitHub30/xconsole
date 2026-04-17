@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useI18n } from "@/lib/i18n";
+import { fetchMe, saveServername } from "@/lib/api";
+import { toast } from "sonner";
 
 const MOCK_ENDPOINT = "https://xapi.ix.workers.dev";
 const PROD_ENDPOINT = "https://cors.ix.workers.dev/api.xserver.ne.jp";
@@ -24,9 +26,27 @@ export function LoginPage() {
     setLoading(true);
     setError("");
     const endpoint = useMock ? MOCK_ENDPOINT : PROD_ENDPOINT;
-    const params = new URLSearchParams({ api_key: apiKey, endpoint });
-    const base = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
-    window.location.href = `${base}?${params.toString()}`;
+    try {
+      const me = await fetchMe(apiKey, endpoint);
+      if (!me.servername) throw new Error("No servername returned");
+      saveServername(apiKey, me.servername);
+      const params = new URLSearchParams({ api_key: apiKey, endpoint });
+      const base = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
+      window.location.href = `${base}?${params.toString()}`;
+    } catch (err) {
+      let message = "ログインに失敗しました";
+      if (err instanceof Error) {
+        try {
+          const jsonStr = err.message.replace(/^API Error \d+:\s*/, "");
+          const parsed = JSON.parse(jsonStr);
+          message = parsed?.error?.message || err.message;
+        } catch {
+          message = err.message;
+        }
+      }
+      toast.error(message);
+      setLoading(false);
+    }
   };
 
   return (
