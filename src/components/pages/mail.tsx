@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Plus, ChevronDown, ChevronRight, Trash2, ExternalLink } from "lucide-react";
+import { Plus, ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
@@ -22,9 +22,7 @@ export function MailPage() {
   const [accounts, setAccounts] = useState<MailAccount[]>([]);
   const [filters, setFilters] = useState<MailFilter[]>([]);
   const [loading, setLoading] = useState(true);
-  const [webmailOpen, setWebmailOpen] = useState(false);
-  const [webmailAccount, setWebmailAccount] = useState("");
-  const [webmailPassword, setWebmailPassword] = useState("");
+
 
   // Accounts
   const [selectedAccounts, setSelectedAccounts] = useState<Set<string>>(new Set());
@@ -122,11 +120,7 @@ export function MailPage() {
     setSelectedFilters(new Set()); fetchData();
   };
 
-  // Webmail
-  const handleWebmailConnect = () => {
-    window.open(`https://github30.github.io/webmail/#/mail?user=${encodeURIComponent(webmailAccount)}&password=${encodeURIComponent(webmailPassword)}`, "_blank");
-    setWebmailOpen(false);
-  };
+
 
   if (loading) return <div className="text-center py-8">Loading...</div>;
 
@@ -160,7 +154,6 @@ export function MailPage() {
                   <TableHead>{t("mail.address")}</TableHead>
                   <TableHead>{t("mail.quota")}</TableHead>
                   <TableHead>{t("common.memo")}</TableHead>
-                  <TableHead>{t("mail.webmail")}</TableHead>
                   <TableHead className="w-20">{t("common.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -170,10 +163,7 @@ export function MailPage() {
                     <TableCell />
                     <TableCell><Input placeholder="user@example.com" value={newAddress} onChange={(e) => setNewAddress(e.target.value)} className="h-8" /></TableCell>
                     <TableCell><Input placeholder="1000" value={newQuota} onChange={(e) => setNewQuota(e.target.value)} className="h-8 w-24" /></TableCell>
-                    <TableCell><Input placeholder={t("common.memo")} value={newAccountMemo} onChange={(e) => setNewAccountMemo(e.target.value)} className="h-8" /></TableCell>
-                    <TableCell>
-                      <Input placeholder={t("common.password")} type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-8" />
-                    </TableCell>
+                    <TableCell><Input placeholder={t("common.memo")} value={newAccountMemo} onChange={(e) => setNewAccountMemo(e.target.value)} className="h-8" /><Input placeholder={t("common.password")} type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className="h-8 mt-1" /></TableCell>
                     <TableCell>
                       <div className="flex gap-1"><Button size="sm" onClick={handleAddAccount}>{t("common.save")}</Button><Button size="sm" variant="ghost" onClick={() => setShowAddAccount(false)}>{t("common.cancel")}</Button></div>
                     </TableCell>
@@ -183,14 +173,9 @@ export function MailPage() {
                   <Fragment key={a.mail_address}>
                     <TableRow>
                       <TableCell><Checkbox checked={selectedAccounts.has(a.mail_address)} onCheckedChange={() => { const next = new Set(selectedAccounts); next.has(a.mail_address) ? next.delete(a.mail_address) : next.add(a.mail_address); setSelectedAccounts(next); }} /></TableCell>
-                      <TableCell className="font-medium">{a.mail_address}</TableCell>
+                      <TableCell className="font-medium"><a href={`https://github30.github.io/webmail/#/mail?user=${encodeURIComponent(a.mail_address)}&password=${encodeURIComponent(a.memo)}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{a.mail_address}</a></TableCell>
                       <TableCell>{a.quota_mb}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{a.memo}</TableCell>
-                      <TableCell>
-                        <Button size="sm" variant="outline" onClick={() => { setWebmailAccount(a.mail_address); setWebmailOpen(true); }}>
-                          <ExternalLink className="h-3 w-3 mr-1" /> {t("mail.webmail")}
-                        </Button>
-                      </TableCell>
                       <TableCell>
                         <Button size="sm" variant="ghost" onClick={() => { expandedAccount === a.mail_address ? setExpandedAccount(null) : (setExpandedAccount(a.mail_address), setEditPassword(""), setEditQuota(String(a.quota_mb)), setEditAccountMemo(a.memo)); }}>
                           {expandedAccount === a.mail_address ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />} {t("common.edit")}
@@ -199,7 +184,7 @@ export function MailPage() {
                     </TableRow>
                     {expandedAccount === a.mail_address && (
                       <TableRow key={`${a.mail_address}-edit`}>
-                        <TableCell colSpan={6} className="bg-muted/50">
+                        <TableCell colSpan={5} className="bg-muted/50">
                           <div className="p-4 grid grid-cols-3 gap-3">
                             <div><Label>{t("common.password")}</Label><Input type="password" value={editPassword} onChange={(e) => setEditPassword(e.target.value)} className="mt-1" placeholder="(unchanged)" /></div>
                             <div><Label>{t("mail.quota")}</Label><Input value={editQuota} onChange={(e) => setEditQuota(e.target.value)} className="mt-1" /></div>
@@ -218,6 +203,7 @@ export function MailPage() {
               </TableBody>
             </Table>
           </div>
+          <p className="text-sm text-muted-foreground">パスワードがメモと同じ場合のみ、メールアドレスをクリックするとWebメールにログインできます</p>
         </TabsContent>
 
         {/* Forwarding Tab */}
@@ -309,20 +295,6 @@ export function MailPage() {
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Webmail Password Modal */}
-      <Dialog open={webmailOpen} onOpenChange={setWebmailOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("mail.webmail")}</DialogTitle>
-            <DialogDescription>{webmailAccount}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div><Label>{t("common.password")}</Label><Input type="password" value={webmailPassword} onChange={(e) => setWebmailPassword(e.target.value)} /></div>
-            <Button onClick={handleWebmailConnect} className="w-full">{t("common.connect")}</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Forwarding Modal */}
       <Dialog open={!!forwardingFor} onOpenChange={() => setForwardingFor(null)}>
