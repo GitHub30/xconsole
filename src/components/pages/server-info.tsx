@@ -11,6 +11,7 @@ import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
 function CopyableValue({ value, children, className }: { value: string; children: React.ReactNode; className?: string }) {
+  const { t } = useI18n();
   const [copied, setCopied] = useState(false);
   const handleCopy = async () => {
     await navigator.clipboard.writeText(value);
@@ -25,7 +26,7 @@ function CopyableValue({ value, children, className }: { value: string; children
           {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover/copy:opacity-100" />}
         </button>
       </TooltipTrigger>
-      <TooltipContent>{copied ? "コピーしました" : "コピー"}</TooltipContent>
+      <TooltipContent>{copied ? t("common.copied") : t("common.copy")}</TooltipContent>
     </Tooltip>
   );
 }
@@ -191,7 +192,7 @@ export function ServerInfoPage() {
                 <dd><CopyableValue value={info.apache_version}>{info.apache_version}</CopyableValue></dd>
               </div>
             </dl>
-            <p className="text-xs text-muted-foreground mt-4 text-center">クリックするとコピー出来ます</p>
+            <p className="text-xs text-muted-foreground mt-4 text-center">{t("common.clickToCopy")}</p>
             </TooltipProvider>
           </CardContent>
         </Card>
