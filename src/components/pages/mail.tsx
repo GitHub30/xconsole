@@ -203,7 +203,7 @@ export function MailPage() {
               </TableBody>
             </Table>
           </div>
-          <p className="text-sm text-muted-foreground">パスワードがメモと同じ場合のみ、メールアドレスをクリックするとWebメールにログインできます</p>
+          <p className="text-sm text-muted-foreground">{t("mail.webmailHint")}</p>
         </TabsContent>
 
         {/* Forwarding Tab */}

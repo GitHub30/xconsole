@@ -239,7 +239,7 @@ export function MysqlPage() {
               </TableBody>
             </Table>
           </div>
-          <p className="text-sm text-muted-foreground">パスワードが権限ユーザー名と同じ場合のみ、権限ユーザーをクリックするとphpMyAdminにログインできます</p>
+          <p className="text-sm text-muted-foreground">{t("mysql.phpmyadminHint")}</p>
         </TabsContent>
 
         {/* Users Tab */}

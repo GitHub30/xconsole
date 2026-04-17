@@ -128,7 +128,7 @@ export function FtpPage() {
           </TableBody>
         </Table>
       </div>
-      <p className="text-sm text-muted-foreground">パスワードがメモと同じ場合のみ、FTPアカウントをクリックするとファイルマネージャーにログインできます</p>
+      <p className="text-sm text-muted-foreground">{t("ftp.fileManagerHint")}</p>
     </div>
   );
 }
