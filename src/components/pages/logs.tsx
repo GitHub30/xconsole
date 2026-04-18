@@ -12,6 +12,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type LogEntry = {
   time: string;
@@ -226,7 +227,7 @@ export function LogsPage() {
               setAiResult("");
               setAiDialogOpen(true);
               try {
-                const contents = `以下のログを分析してください。回答はMarkdown形式で出力してください。重要: **太字** や *斜体* などのMarkdown記法の前後には必ず半角スペースを入れてください（例: "主に **エラー** が" のように）。\n${JSON.stringify({
+                const contents = `以下のログを分析してください。回答はMarkdown形式で出力してください。重要: **太字** や *斜体* などのMarkdown記法の前後には必ず半角スペースを入れてください（例: "主に **エラー** が" のように）。\nIPアドレスについても分析し、アクセス元の地域・組織・不審なアクセスパターンがあれば報告してください。\n${JSON.stringify({
                   error_log: errorRaw.slice(0, 4000),
                   access_log: accessRaw.slice(0, 4000),
                 })}`;
@@ -372,7 +373,7 @@ export function LogsPage() {
             </div>
           ) : (
             <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
-              <Markdown>{aiResult}</Markdown>
+              <Markdown remarkPlugins={[remarkGfm]}>{aiResult}</Markdown>
             </div>
           )}
         </DialogContent>
