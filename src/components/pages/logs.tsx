@@ -237,9 +237,14 @@ export function LogsPage() {
                     contents,
                   }),
                 });
-                const obj = await res.json();
-                const text = obj.candidates?.[0]?.content?.parts?.[0]?.text || "分析結果を取得できませんでした。";
-                setAiResult(text);
+                if (res.ok) {
+                  const obj = await res.json();
+                  const text = obj.candidates?.[0]?.content?.parts?.[0]?.text || "Generate failed";
+                  setAiResult(text);
+                } else {
+                  const { error } = await res.json();
+                  setAiResult(error.message);
+                }
               } catch (e) {
                 setAiResult("エラーが発生しました: " + (e instanceof Error ? e.message : String(e)));
               } finally {
