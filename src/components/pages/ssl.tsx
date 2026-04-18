@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ShieldCheck, Trash2 } from "lucide-react";
+import { ShieldCheck, Trash2, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { api } from "@/lib/api";
 
@@ -47,7 +47,7 @@ export function SslPage() {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
+  if (loading) return <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
     <div className="space-y-4">

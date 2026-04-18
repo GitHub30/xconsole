@@ -211,7 +211,7 @@ export function LogsPage() {
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
-  if (loading && !domains.length) return <div className="text-center py-8">Loading...</div>;
+  if (loading && !domains.length) return <div className="flex items-center justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
     <div className="space-y-4">

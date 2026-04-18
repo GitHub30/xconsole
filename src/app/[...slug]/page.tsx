@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { AppRouter } from "@/components/app-router";
+import { Loader2 } from "lucide-react";
 
 export function generateStaticParams() {
   return [
@@ -19,7 +20,7 @@ export function generateStaticParams() {
 
 export default function CatchAllPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
       <AppRouter />
     </Suspense>
   );
