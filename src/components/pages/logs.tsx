@@ -235,7 +235,7 @@ export function LogsPage() {
                   body: JSON.stringify({
                     model: "gemini-3.1-flash-lite-preview",
                     contents,
-                    tools: [{ googleSearch: {} }],
+                    tools: [{ googleSearch: {} }, { codeExecution: {} }],
                   }),
                 });
                 if (res.ok) {
