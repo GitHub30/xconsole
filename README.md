@@ -1,4 +1,4 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/af888614-aacc-434d-97d7-d153095436c6" />
+<img width="1400" height="788" alt="image" src="https://github.com/user-attachments/assets/41524730-8bb0-4aaf-a29a-c6d0c6757d1c" />
 
 # XServer Console (非公式)
 
