@@ -248,14 +248,14 @@ export function LogsPage() {
                   setAiResult(error.message);
                 }
               } catch (e) {
-                setAiResult("エラーが発生しました: " + (e instanceof Error ? e.message : String(e)));
+                setAiResult(t("logs.aiError") + (e instanceof Error ? e.message : String(e)));
               } finally {
                 setAiLoading(false);
               }
             }}
           >
             {aiLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1" />}
-            Ask AI
+            {t("logs.askAi")}
           </Button>
           <Select value={selectedDomain} onValueChange={setSelectedDomain}>
             <SelectTrigger className="w-[200px]">

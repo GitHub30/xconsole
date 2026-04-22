@@ -32,7 +32,7 @@ export function LoginPage() {
       try {
         me = await fetchMe(apiKey, endpoint);
       } catch (err) {
-        let message = "ログインに失敗しました";
+        let message = t("login.failed");
         if (err instanceof Error) {
           try {
             const jsonStr = err.message.replace(/^API Error \d+:\s*/, "");

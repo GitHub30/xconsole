@@ -166,6 +166,8 @@ const dictionaries: Record<Lang, Dict> = {
     "logs.aiAnalysis": "AI ログ分析",
     "logs.analyzing": "分析中...",
     "logs.aiPromptPrefix": "以下のログを分析してください。回答はMarkdown形式で出力してください。重要: **太字** や *斜体* などのMarkdown記法の前後には必ず半角スペースを入れてください（例: \"主に **エラー** が\" のように）。\nIPアドレスについても分析し、アクセス元の地域・組織・不審なアクセスパターンがあれば報告してください。\n",
+    "logs.aiError": "エラーが発生しました: ",
+    "logs.askAi": "Ask AI",
   },
   en: {
     "nav.domains": "Domains",
@@ -316,6 +318,8 @@ const dictionaries: Record<Lang, Dict> = {
     "logs.aiAnalysis": "AI Log Analysis",
     "logs.analyzing": "Analyzing...",
     "logs.aiPromptPrefix": "Please analyze the following logs. Respond in Markdown format. Important: Always add a space before and after Markdown formatting like **bold** or *italic* (e.g., \"mainly **errors**\").\nAlso analyze IP addresses, report the region, organization, and any suspicious access patterns.\n",
+    "logs.aiError": "An error occurred: ",
+    "logs.askAi": "Ask AI",
   },
   "zh-CN": {
     "nav.domains": "域名",
@@ -466,7 +470,8 @@ const dictionaries: Record<Lang, Dict> = {
     "logs.aiAnalysis": "AI 日志分析",
     "logs.analyzing": "分析中...",
     "logs.aiPromptPrefix": "请分析以下日志。以Markdown格式回复。重要：在 **粗体** 或 *斜体* 等Markdown标记前后必须添加空格（例如：“主要 **错误**”）。\n还要分析IP地址，报告地区、组织和任何可疑的访问模式。\n",
-
+    "logs.aiError": "发生错误: ",
+    "logs.askAi": "询问 AI",
   },
   "zh-TW": {
     "nav.domains": "網域",
@@ -616,8 +621,8 @@ const dictionaries: Record<Lang, Dict> = {
     "logs.col.useragent": "User-Agent",
     "logs.aiAnalysis": "AI 日誌分析",
     "logs.analyzing": "分析中...",
-    "logs.aiPromptPrefix": "請分析以下日誌。以Markdown格式回覆。重要：在 **粗體** 或 *斜體* 等Markdown標記前後必須添加空格（例如：「主要 **錯誤**」）。\n還要分析IP地址，報告地區、組織和任何可疑的訪問模式。\n",
-  },
+    "logs.aiPromptPrefix": "請分析以下日誌。以Markdown格式回覆。重要：在 **粗體** 或 *斜體* 等Markdown標記前後必須添加空格（例如：「主要 **錯誤**」）。\n還要分析IP地址，報告地區、組織和任何可疑的訪問模式。\n",    "logs.aiError": "發生錯誤: ",
+    "logs.askAi": "詢問 AI",  },
   ko: {
     "nav.domains": "도메인",
     "nav.subdomains": "서브도메인",
@@ -767,6 +772,8 @@ const dictionaries: Record<Lang, Dict> = {
     "logs.aiAnalysis": "AI 로그 분석",
     "logs.analyzing": "분석 중...",
     "logs.aiPromptPrefix": "다음 로그를 분석해 주세요. Markdown 형식으로 응답하세요. 중요: **굵은 글씨** 또는 *기울임* 같은 Markdown 표기 앞뒤에 항상 공백을 추가하세요 (예: \"주로 **오류**\").\nIP 주소도 분석하여 지역, 조직 및 의심스러운 액세스 패턴이 있으면 보고하세요.\n",
+    "logs.aiError": "오류가 발생했습니다: ",
+    "logs.askAi": "AI에게 물어보기",
   },
   vi: {
     "nav.domains": "Tên miền",
@@ -917,6 +924,8 @@ const dictionaries: Record<Lang, Dict> = {
     "logs.aiAnalysis": "Phân tích log AI",
     "logs.analyzing": "Đang phân tích...",
     "logs.aiPromptPrefix": "Vui lòng phân tích nhật ký sau. Trả lời bằng định dạng Markdown. Quan trọng: Luôn thêm khoảng trắng trước và sau các dấu đánh dấu Markdown như **in đậm** hoặc *in nghiêng* (ví dụ: \"chủ yếu **lỗi**\").\nCũng phân tích địa chỉ IP, báo cáo khu vực, tổ chức và bất kỳ mẫu truy cập đáng ngờ nào.\n",
+    "logs.aiError": "Đã xảy ra lỗi: ",
+    "logs.askAi": "Hỏi AI",
   },
 };
 
