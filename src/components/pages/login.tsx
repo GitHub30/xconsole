@@ -11,7 +11,6 @@ import { fetchMe, saveServername } from "@/lib/api";
 import { toast } from "sonner";
 
 const MOCK_ENDPOINT = "https://xapi.ix.workers.dev";
-const PROD_ENDPOINT = "https://cors.ix.workers.dev/api.xserver.ne.jp";
 
 export function LoginPage() {
   const { t } = useI18n();
