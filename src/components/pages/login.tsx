@@ -62,9 +62,9 @@ export function LoginPage() {
         endpoint = resolved.endpoint;
         me = resolved.me;
       } catch (err) {
-        let message = "Login failed";
+        let message = t("login.failed");
         if (err instanceof AggregateError) {
-          message = "Login failed";
+          message = t("login.failed");
         } else if (err instanceof Error) {
           try {
             const jsonStr = err.message.replace(/^API Error \d+:\s*/, "");
