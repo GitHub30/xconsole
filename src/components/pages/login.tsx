@@ -25,28 +25,66 @@ export function LoginPage() {
     if (!apiKey) return;
     setLoading(true);
     setError("");
-    const endpoint = useMock ? MOCK_ENDPOINT : PROD_ENDPOINT;
-    try {
-      const me = await fetchMe(apiKey, endpoint);
-      if (!me.servername) throw new Error("No servername returned");
-      saveServername(apiKey, me.servername);
-      const params = new URLSearchParams({ api_key: apiKey, endpoint });
-      const base = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
-      window.location.href = `${base}?${params.toString()}`;
-    } catch (err) {
-      let message = "ログインに失敗しました";
-      if (err instanceof Error) {
-        try {
-          const jsonStr = err.message.replace(/^API Error \d+:\s*/, "");
-          const parsed = JSON.parse(jsonStr);
-          message = parsed?.error?.message || err.message;
-        } catch {
-          message = err.message;
+    let endpoint: string;
+    let me: any;
+
+    if (useMock) {
+      endpoint = MOCK_ENDPOINT;
+      try {
+        me = await fetchMe(apiKey, endpoint);
+      } catch (err) {
+        let message = "ログインに失敗しました";
+        if (err instanceof Error) {
+          try {
+            const jsonStr = err.message.replace(/^API Error \d+:\s*/, "");
+            const parsed = JSON.parse(jsonStr);
+            message = parsed?.error?.message || err.message;
+          } catch {
+            message = err.message;
+          }
         }
+        toast.error(message);
+        setLoading(false);
+        return;
       }
-      toast.error(message);
-      setLoading(false);
+    } else {
+      const prodEndpoints = [
+        "https://cors.ix.workers.dev/api.xserver.ne.jp",
+        "https://cors.ix.workers.dev/api.shin-server.jp",
+        "https://cors.ix.workers.dev/api.star.ne.jp"
+      ];
+      const promises = prodEndpoints.map(async (ep) => {
+        const result = await fetchMe(apiKey, ep);
+        return { endpoint: ep, me: result };
+      });
+      try {
+        const resolved = await Promise.any(promises);
+        endpoint = resolved.endpoint;
+        me = resolved.me;
+      } catch (err) {
+        let message = "Login failed";
+        if (err instanceof AggregateError) {
+          message = "Login failed";
+        } else if (err instanceof Error) {
+          try {
+            const jsonStr = err.message.replace(/^API Error \d+:\s*/, "");
+            const parsed = JSON.parse(jsonStr);
+            message = parsed?.error?.message || err.message;
+          } catch {
+            message = err.message;
+          }
+        }
+        toast.error(message);
+        setLoading(false);
+        return;
+      }
     }
+
+    if (!me.servername) throw new Error("No servername returned");
+    saveServername(apiKey, me.servername);
+    const params = new URLSearchParams({ api_key: apiKey, endpoint });
+    const base = (process.env.NEXT_PUBLIC_BASE_PATH || "") + "/";
+    window.location.href = `${base}?${params.toString()}`;
   };
 
   return (
