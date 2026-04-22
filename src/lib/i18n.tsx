@@ -67,7 +67,7 @@ const dictionaries: Record<Lang, Dict> = {
     "common.clickToCopy": "クリックするとコピー出来ます",
     "login.servername": "サーバー名",
     "login.apiKey": "APIキー",
-    "login.title": "XServer Console",
+    "login.title": "XServer/シン/スター Console",
     "login.submit": "ログイン",
     "login.useMock": "モックサーバーを使用する",
     "login.failed": "ログインに失敗しました",
