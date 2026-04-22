@@ -227,7 +227,7 @@ export function LogsPage() {
               setAiResult("");
               setAiDialogOpen(true);
               try {
-                const contents = `以下のログを分析してください。回答はMarkdown形式で出力してください。重要: **太字** や *斜体* などのMarkdown記法の前後には必ず半角スペースを入れてください（例: "主に **エラー** が" のように）。\nIPアドレスについても分析し、アクセス元の地域・組織・不審なアクセスパターンがあれば報告してください。\n${JSON.stringify({
+                const contents = `${t("logs.aiPromptPrefix")}${JSON.stringify({
                   error_log: errorRaw.slice(0, 4000),
                   access_log: accessRaw.slice(0, 4000),
                 })}`;
@@ -363,13 +363,13 @@ export function LogsPage() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto" aria-describedby={undefined}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" /> AI ログ分析
+              <Sparkles className="h-5 w-5" /> {t("logs.aiAnalysis")}
             </DialogTitle>
           </DialogHeader>
           {aiLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              <span>分析中...</span>
+              <span>{t("logs.analyzing")}</span>
             </div>
           ) : (
             <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
